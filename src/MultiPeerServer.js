@@ -1,10 +1,10 @@
-import SimplePeerBase from "@/js/MultiPeerServer/MultiPeerBase";
+import SimplePeerBase from "./MultiPeerBase";
 
 export default class MultiPeerServer extends SimplePeerBase {
     constructor(appName, trickle = true, wrtc = false) {
         super(appName, trickle, wrtc);
         this.broadcastedStreams = [];
-        this.peerType='server';
+        this.peerType = 'server';
     }
 
     async create(room, password = '', hidden = false) {

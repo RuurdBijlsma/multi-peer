@@ -8,5 +8,9 @@
   },
   "keywords": [],
   "author": "Ruurd Bijlsma",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "multi-signal-server": "git+https://git@github.com/ruurdbijlsma/multi-signal-server.git",
+    "simple-peer": "^9.7.2"
+  }
 }

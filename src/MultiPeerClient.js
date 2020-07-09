@@ -1,9 +1,9 @@
-import SimplePeerBase from "@/js/MultiPeerServer/MultiPeerBase";
+import SimplePeerBase from "./MultiPeerBase";
 
 export default class MultiPeerClient extends SimplePeerBase {
     constructor(appName, trickle = true, wrtc = false) {
         super(appName, trickle, wrtc);
-        this.peerType='client';
+        this.peerType = 'client';
     }
 
     async join(room, password = '') {
