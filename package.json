@@ -2,7 +2,7 @@
   "name": "multi-peer",
   "version": "1.0.0",
   "description": "Server/client structure for peer to peer communication",
-  "browser": "src/index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
