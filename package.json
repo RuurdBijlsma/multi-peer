@@ -1,6 +1,6 @@
 {
   "name": "multi-peer",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Server/client structure for peer to peer communication",
   "main": "src/index.js",
   "scripts": {

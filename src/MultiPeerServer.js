@@ -1,8 +1,8 @@
-import SimplePeerBase from "./MultiPeerBase";
+import MultiPeerBase from "./MultiPeerBase";
 
-export default class MultiPeerServer extends SimplePeerBase {
-    constructor(appName, trickle = true, wrtc = false) {
-        super(appName, trickle, wrtc);
+export default class MultiPeerServer extends MultiPeerBase {
+    constructor(appName, buffered = false, trickle = true, wrtc = false) {
+        super(appName, buffered, trickle, wrtc);
         this.broadcastedStreams = [];
         this.peerType = 'server';
     }
@@ -21,18 +21,14 @@ export default class MultiPeerServer extends SimplePeerBase {
         });
     }
 
-    broadcast(message) {
+    broadcast(message, raw = false) {
         this.log(`Broadcasting to ${this.getConnectedPeerCount()} peers:`, message);
-        message = typeof message === 'string' ? message : JSON.stringify(message);
-        this.peerList.forEach(p => p.send(message));
+        Object.keys(this.peers).forEach(id => this.sendToPeer(id, message, raw));
     }
 
-    send(id, message) {
+    send(id, message, raw = false) {
         this.log(`Sending to ${id}:`, message);
-        message = typeof message === 'string' ? message : JSON.stringify(message);
-
-        if (this.peers.hasOwnProperty(id) && this.peers[id] !== null)
-            this.peers[id].send(message);
+        this.sendToPeer(this.id, message, raw);
     }
 
     broadcastStream(stream) {

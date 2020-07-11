@@ -3,7 +3,7 @@ import EventEmitter from 'events';
 import SignalModule from "multi-signal-server";
 
 export default class MultiPeerBase extends EventEmitter {
-    constructor(appName, trickle = true, wrtc = false) {
+    constructor(appName, buffered = false, trickle = true, wrtc = false) {
         super();
         this.wrtc = wrtc;
         this.appName = appName;
@@ -13,7 +13,48 @@ export default class MultiPeerBase extends EventEmitter {
         this.room = '';
         this.peerType = 'base';
 
+        this._tps = 60;
+        this._sendQueue = [];
+        this._bufferInterval = -1;
+        if (buffered)
+            this.enableBuffering(this._tps);
+
         this.signal = new SignalModule(appName);
+    }
+
+    enableBuffering(tps) {
+        clearInterval(this._bufferInterval);
+        this._sendBuffered = true;
+        this._tps = tps;
+        this._bufferInterval = setInterval(() => {
+            let buffer = {};
+            for (let [id, message] of this._sendQueue) {
+                if (!this.buffer[id])
+                    this.buffer[id] = [];
+                this.buffer[id].push(message);
+            }
+            for (let id in buffer)
+                this._realSend(id, JSON.stringify(buffer[id]));
+        }, 1000 / tps);
+    }
+
+    disableBuffering(tps) {
+        clearInterval(this._bufferInterval);
+        this._sendBuffered = false;
+    }
+
+    sendToPeer(id, message, raw = false) {
+        if (this._sendBuffered)
+            this._sendQueue.push([id, message]);
+        else
+            this._realSend(id, message, raw)
+    }
+
+    _realSend(id, message, raw = false) {
+        message = typeof message === 'string' || raw ? message : JSON.stringify(message);
+
+        if (this.peers.hasOwnProperty(id) && this.peers[id] !== null)
+            this.peers[id].send(message);
     }
 
     async getServerRooms(url) {
@@ -73,9 +114,7 @@ export default class MultiPeerBase extends EventEmitter {
             options.wrtc = this.wrtc;
             this.log('Using wrtc', options)
         }
-        if (this.broadcastedStream !== null) {
-            options.stream = this.broadcastedStream;
-        }
+
         let peer = new Peer(options);
         peer.on('error', err => {
             console.warn(err);
@@ -97,7 +136,12 @@ export default class MultiPeerBase extends EventEmitter {
 
         peer.on('data', data => {
             this.log('data: ' + data);
-            this.emit('data', socketId, data);
+            if (this._sendBuffered) {
+                let bufferedMessages = JSON.parse(data);
+                bufferedMessages.forEach(m => this.emit('data', socketId, m));
+            } else {
+                this.emit('data', socketId, data);
+            }
         });
 
         peer.on('stream', stream => {
@@ -159,13 +203,7 @@ export default class MultiPeerBase extends EventEmitter {
     }
 
     get peerList() {
-        let list = []
-        for (let peer in this.peers) {
-            if (this.peers.hasOwnProperty(peer)) {
-                list.push(this.peers[peer]);
-            }
-        }
-        return list;
+        return Object.values(this.peers);
     }
 
     get url() {
