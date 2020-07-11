@@ -35,6 +35,7 @@ export default class MultiPeerBase extends EventEmitter {
             }
             for (let id in buffer)
                 this._realSend(id, JSON.stringify(buffer[id]));
+            this._sendQueue = [];
         }, 1000 / tps);
     }
 
