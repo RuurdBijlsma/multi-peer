@@ -29,9 +29,9 @@ export default class MultiPeerBase extends EventEmitter {
         this._bufferInterval = setInterval(() => {
             let buffer = {};
             for (let [id, message] of this._sendQueue) {
-                if (!this.buffer[id])
-                    this.buffer[id] = [];
-                this.buffer[id].push(message);
+                if (!buffer[id])
+                    buffer[id] = [];
+                buffer[id].push(message);
             }
             for (let id in buffer)
                 this._realSend(id, JSON.stringify(buffer[id]));
