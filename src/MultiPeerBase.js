@@ -140,7 +140,9 @@ export default class MultiPeerBase extends EventEmitter {
                 let bufferedMessages = JSON.parse(data);
                 bufferedMessages.forEach(m => this.emit('data', socketId, m));
             } else {
-                if (typeof data === "string" && (data[0] === '[' || data[0] === '{')) {
+                let firstChar = String.fromCharCode(data[0]);
+                if (firstChar === '[' || firstChar === '{') {
+                    // Probably json :O
                     data = JSON.parse(data);
                 }
                 this.emit('data', socketId, data);
