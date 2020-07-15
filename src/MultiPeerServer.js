@@ -28,7 +28,7 @@ export default class MultiPeerServer extends MultiPeerBase {
 
     send(id, message, raw = false) {
         this.log(`Sending to ${id}:`, message);
-        this.sendToPeer(this.id, message, raw);
+        this.sendToPeer(id, message, raw);
     }
 
     broadcastStream(stream) {
